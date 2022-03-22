@@ -1,11 +1,29 @@
 const Twitter = require("twitter-lite")
-const dotenv = require("dotenv")
-const fs = require('fs')
-const RandomOrg = require('random-org')
-dotenv.config()
+const fs = require("fs/promises")
 
+/*
+Retire RandomORG
+http://gitlab.home.thunderysteak.com/thunderysteak/PossumEveryHour/-/issues/1
+const RandomOrg = require("random-org")
+*/
+
+const { randomInt } = require("crypto")
+const { exit } = require("process")
+
+//Are we in Docker?
+//Checks if env variable is present from Dockerfile
+if (process.env.ISDOCKER != "true" ) {
+    const dotenv = require("dotenv")
+    dotenv.config()
+}
+
+/*
+Retire RandomORG
+http://gitlab.home.thunderysteak.com/thunderysteak/PossumEveryHour/-/issues/1
 //Create RandomOrg Client
 const randomClient = new RandomOrg({ apiKey: process.env.RANDOMORG_KEY})
+*/
+
 //Create media upload client with different API endpoint
 //npm library not using correct API endpoint
 //https://github.com/draftbit/twitter-lite/issues/116
@@ -15,7 +33,8 @@ const mediaClient = new Twitter({
     consumer_secret: process.env.CONSUMER_SECRET,
     access_token_key: process.env.ACCESS_TOKEN_KEY,
     access_token_secret: process.env.ACCESS_TOKEN_SECRET
-    });
+});
+
 //Create tweet upload client
 const client = new Twitter({
     subdomain: "api",
@@ -23,21 +42,116 @@ const client = new Twitter({
     consumer_secret: process.env.CONSUMER_SECRET,
     access_token_key: process.env.ACCESS_TOKEN_KEY,
     access_token_secret: process.env.ACCESS_TOKEN_SECRET
-  });
+});
 
-//Load the filenames in the folder into an array and get count of how many files are in the array.
-const mediaStoreArr = fs.readdirSync('./media/')
-const mediaStoreSize = mediaStoreArr.length
-//Throw an error if there are not enough files in the media folder
-try{
-    if (mediaStoreSize <= 1){
-        throw new Error("Less than 2 files in media or media folder is empty! Unable to continue execution!");
+const USED_NUMBERS_PATH = "./usednumbers.txt"
+const MEDIA_DIR = "./media"
+
+/**
+ * Opens the media store folder and reads the contents. Returns an empty array if the directory doesn't exist.
+ * @returns An array of all filenames in the directory.
+*/
+const getMediaStore = async () => {
+    try {
+        const media = await fs.readdir(MEDIA_DIR)
+        return media
+    } catch(e) {
+        return [];
     }
-} catch(err){
-    console.error(err)
-    exit()
 }
 
+/**
+ * Generates a random number between 0 and max, that isn't already in used.
+ * @param used An array of used numbers.
+ */
+const getNonDuplicateRandom = (used, max) => {
+    var generatedNumber = randomInt(0, max)
+    if(!used.includes(generatedNumber)) {
+        return generatedNumber;
+    }
+    return getNonDuplicateRandom(used, max);
+}
+
+const getUsedNumbers = async() => {
+    try {
+        const buf = await fs.readFile(USED_NUMBERS_PATH)
+        return buf.toString().split("\n").map(v => parseInt(v))
+    } catch(e) {
+        if(e.code == "ENOENT") {
+            // used numbers file doesn't exist
+            await fs.writeFile(USED_NUMBERS_PATH, "")
+            return []
+        }
+    }
+}
+
+const getRandomFile = async() => {
+    const mediaStore = await getMediaStore()
+    // Exit with an error if there are not enough files in the media folder.
+    if (mediaStore.length <= 1) {
+        console.error("Less than 2 files in media or media folder is empty! Unable to continue execution!")
+        exit();
+    }
+
+    const usedNumbers = await getUsedNumbers();
+
+    //Permit only 75% usage of unique files. 
+    if (usedNumbers.length >= Math.round((mediaStore.length / 4) * 3)) {
+        await fs.writeFile("usednumbers.txt", "")
+        console.log("Reached 75% of entries in the unique files queue. Clearing queue!");
+    }
+
+    let generatedNumber = 0;
+    if(mediaStore.length <= 23) {
+        console.log("Less than 23 images loaded, skipping checks.")
+    } else {
+        generatedNumber = getNonDuplicateRandom(usedNumbers, mediaStore.length)
+    }
+    console.log(`Generated number ${generatedNumber}`)
+    await fs.appendFile("usednumbers.txt", generatedNumber + "\n");
+
+    //Seems to break PM2 if not ran from folder that contains the media folder. Should an issue be open for this?
+
+    const randomFileString = "./media/" + mediaStore[generatedNumber]
+    console.log("Using file: " + randomFileString)
+    return fs.readFile(randomFileString);
+}
+
+//This whole function might need to be rewritten once twitter-lite has stable V2 API support
+//http://gitlab.home.thunderysteak.com/thunderysteak/PossumEveryHour/-/issues/2
+const createPost = async () => {
+    //Read image file data and convert it to Base64 as required by the Twitter API 1.1
+    //https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-upload
+    const imageData = await getRandomFile()
+    console.log("Uploading base64 image...")
+    //Send the base64 data to Twitter media API endpoint and get the media ID string
+    const mediaUploadResponse = await mediaClient.post("media/upload", {
+        media_data: imageData.toString("base64"),
+    });
+
+    //Create new tweet with the media ID that was uploaded.
+    //If we wanted to start adding text to posts, this is where we'd do it.
+
+    try {
+        console.log("Creating tweet...")
+        await client.post("statuses/update", { media_ids: mediaUploadResponse.media_id_string })
+    } catch(e) {
+        console.error(`Error creating tweet: ${e}`)
+    }
+}
+
+createPost()
+    .then(res => {
+        console.log("\n\n\nTweet has been successfully sent.\n\n\n");
+        //require("child_process").fork("./zabbix-heartbeat.js");
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+/*
+Retire RandomORG
+http://gitlab.home.thunderysteak.com/thunderysteak/PossumEveryHour/-/issues/1
 //Function to obtain a random number from range from Random.Org. 
 async function genRandomNumber(randomLowestInt, randomBiggestInt) {
     const result = await randomClient.generateIntegers({
@@ -47,82 +161,4 @@ async function genRandomNumber(randomLowestInt, randomBiggestInt) {
     });
     return result.random.data
 }
-
-async function getRandomFile() {
-    const usedNumbers = fs.readFileSync('usednumbers.txt').toString().split("\n");
-    //Permit only 24 entries in the usednumbers file not to repeat if media folder contains less than 72 files
-    if (usedNumbers.length >= 24 && mediaStoreSize < 72){
-        fs.writeFile('usednumbers.txt', '', function (err) {
-            if (err) throw err;
-            console.log('Reached 24 entries with less than 72 files, clearing!');
-          });
-    }
-    //Permit only 72 entries in the usednumbers file not to repeat if media folder contains more than 72 files but less than 168. 3 days of unique pics.
-    else if (usedNumbers.length >= 72 && mediaStoreSize <= 168){
-        fs.writeFile('usednumbers.txt', '', function (err) {
-            if (err) throw err;
-            console.log('Reached 72 entries, clearing!');
-          });
-    }
-    //Permit 168 entries in the usednumbers file not to repeat if media folder contains more than 168 files. One week of unique pics!
-    else if (usedNumbers.length >= 168 && mediaStoreSize > 168){
-        fs.writeFile('usednumbers.txt', '', function (err) {
-            if (err) throw err;
-            console.log('Reached 168 entries, clearing!');
-          });
-    }
-    /*
-    Duplication checking. Enters content of usernumbers.txt into an array and then compares the generated number with the entries in
-    the array. If duplicate was detected, the whole loop re-runs generating a new number.
-    */
-    while (true){
-        var generatedNumber = await genRandomNumber(1,mediaStoreSize)
-        console.log('File with ID of '+ generatedNumber[0]+' has been generated. Checking if it was used recently.')
-        if (mediaStoreSize <= 23){
-            console.log("Less than 23 images loaded, skipping checks.")
-            break
-        }
-        else if (usedNumbers.includes(generatedNumber[0].toString()) == false ){
-            console.log('File with ID of '+ generatedNumber[0]+' has not been used recently.')
-            break
-            }
-        }
-    fs.appendFileSync('usednumbers.txt', generatedNumber[0] + '\n');
-    //Join the selected filename to get the full path and then load the binary data into imageData
-    //generatedNumber is required to be in its own variable, as mediaStoreArr[generatedNumber[0]] would occassionally not return a number resulting in a crash.
-    const uniqueNumber = generatedNumber[0]
-    const randomFileString = "./media/" + mediaStoreArr[uniqueNumber]
-    console.log(randomFileString)
-    const imageData = fs.readFileSync(randomFileString);
-    return imageData
-}
-
-const createPost = async () => {
-    //Read image file data and convert it to Base64 as required by the Twitter API
-    const imageData = await getRandomFile()
-    console.log("Converting file to Base64")
-    const base64Image = new Buffer(imageData).toString('base64');
-    console.log("uploading img")
-    //Send the base64 data to Twitter media API endpoint and get the media ID string
-    const mediaUploadResponse = await mediaClient.post('media/upload', {
-    media_data: base64Image,
-    });
-
-    //Create new tweet with the media ID that was uploaded
-    await client.post("statuses/update", { media_ids: mediaUploadResponse.media_id_string })
-    .then(res => {
-    console.log('Creating Tweet...');
-    })
-    .catch(err => {
-    console.log(err);
-    });
-
-}
-
-createPost()
-.then(res => {
-    console.log("\n\n\nTweet has been successfully sent.\n\n\n");
-})
-.catch(err => {
-    console.log(err);
-    });
+*/

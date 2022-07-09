@@ -1,6 +1,6 @@
 var schedule = require('node-schedule');
 
-console.log('Welcome to EveryHourBot Twitter Bot.\n[INSERT GITHUB LINK HERE]\nVersion 1.0.0');
+console.log('Welcome to EveryHourBot Twitter Bot.\nVersion 1.0.0');
 
 const rule = new schedule.RecurrenceRule();
 rule.minute = 0;

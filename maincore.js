@@ -7,6 +7,7 @@ import { login } from 'masto';
 import * as crypto from 'node:crypto'
 import * as exit from 'node:process'
 import * as readLastLines from 'read-last-lines'
+import pRetry from 'p-retry'
 
 //Are we in Docker?
 //Checks if env variable is present from Dockerfile
@@ -133,11 +134,18 @@ const doMastodon = async () => {
     const attachment = await masto.mediaAttachments.create({
         file: noPromiseFs.createReadStream(imageData),
     });
-    await masto.statuses.create({
+    const postMasto = async () => {
+    masto.statuses.create({
         status: '',
         visibility: 'public',
         mediaIds: [attachment.id],
     });
+    }
+    await pRetry(postMasto, {
+        onFailedAttempt: error => {
+		console.log(`Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`);
+	},
+	retries: 5})
     
     console.log("\n\n\Toot has been successfully sent.\n\n\n");
 }

@@ -4,6 +4,7 @@ import * as fs from 'node:fs/promises'
 import * as noPromiseFs from 'node:fs'
 import * as dotenv from 'dotenv'
 import { login } from 'masto';
+import { MastoTimeoutError } from "masto"
 import * as crypto from 'node:crypto'
 import * as exit from 'node:process'
 import * as readLastLines from 'read-last-lines'
@@ -118,6 +119,7 @@ const sendToBoth = async () => {
 
 // TODO: isabel has no idea what your functions do please rename
 const doMastodon = async () => {
+    
     console.log("Doing Mastodon");
     let imageData = ""
     
@@ -129,7 +131,7 @@ const doMastodon = async () => {
     else if (process.env.USE_TWITTER == "true") {
         imageData = await readLastRandomFile("getFilepath")
     }
-
+    try {
     const masto = await login({
         url: process.env.MASTODON_SERVER,
         accessToken: process.env.MASTODON_ACCESS_TOKEN,
@@ -143,8 +145,19 @@ const doMastodon = async () => {
         visibility: 'public',
         mediaIds: [attachment.id],
     });
-    
     console.log("\n\n\Toot has been successfully sent.\n\n\n");
+    //FIXME
+    //Need to limit this to not run infinite times and cause issues
+    //Uploads to larger instance seem to time out around 3 to 5 times before a successful upload
+    } catch(e) {
+        if (String(e).includes("Timeout") || e instanceof MastoTimeoutError) {
+            console.log("Mastodon timed out. Retrying...")
+            doMastodon()
+        }
+        else {
+        console.error(`Error creating Toot: ${e}`)
+        }
+    }
 }
 
 const doTwitter = async() => {
@@ -202,9 +215,6 @@ const doTwitter = async() => {
 }
 
 if(process.env.USE_TWITTER && process.env.USE_MASTODON) {
-    //FIXME
-    //Async calls hurt me and I give up trying to do this properly
-    //Just make it sleep a second so it reuses the Twitter image to stay in sync
     console.log("Queued Mastodon & Twitter")
     sendToBoth()
 } else if(process.env.USE_TWITTER) {

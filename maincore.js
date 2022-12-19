@@ -111,6 +111,11 @@ const readLastRandomFile = async(optionalArg) => {
     }
 }
 
+const sendToBoth = async () => {
+    await doTwitter()
+    await doMastodon()
+}
+
 // TODO: isabel has no idea what your functions do please rename
 const doMastodon = async () => {
     console.log("Doing Mastodon");
@@ -187,7 +192,7 @@ const doTwitter = async() => {
         }
     }
 
-    createTwitterPost()
+    await createTwitterPost()
         .then(() => {
             console.log("\n\n\nTweet has been successfully sent.\n\n\n");
         })
@@ -201,7 +206,7 @@ if(process.env.USE_TWITTER && process.env.USE_MASTODON) {
     //Async calls hurt me and I give up trying to do this properly
     //Just make it sleep a second so it reuses the Twitter image to stay in sync
     console.log("Queued Mastodon & Twitter")
-    doTwitter().then(setTimeout(() => doMastodon(), 1000))
+    sendToBoth()
 } else if(process.env.USE_TWITTER) {
     doTwitter()
 } else if(process.env.USE_MASTODON) {

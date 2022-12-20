@@ -4,6 +4,7 @@ RUN mkdir /ehb
 RUN mkdir /ehb/media
 
 WORKDIR /ehb
+COPY . /ehb/
 
 RUN chown daemon /ehb
 RUN chmod 705 /ehb

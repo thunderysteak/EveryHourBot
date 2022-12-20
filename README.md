@@ -8,6 +8,13 @@ Thanks to [IzzyMG](https://github.com/izzymg) for the help fixing up parts of th
 NodeJS 16
 Twitter Developer Account with evelated permissions and access to Twitter V1 API
 
+## Quick Start using Docker
+1. [Install Docker](https://docs.docker.com/engine/install/) that includes V2 Compose. This should be standard for any release after April 2022.
+1. Edit the `docker-compose.yaml` file to adjust environment variable values.
+1. Create a `media` directory in the same path as `docker-compose.yaml` and `index.js`. 
+1. `docker compose up` 
+1. You're done! No fiddling with RHEL, no worrying about your environment.
+
 ## How to use  
 These instructions are for running the bot on a Linux/Windows server system. Code not designed to run on serverless infrastructure like AWS Lambda, Azure Functions or running on Heroku.  
 

@@ -9,7 +9,8 @@ NodeJS 16
 Twitter Developer Account with evelated permissions and access to Twitter V1 API
 
 ## Quick Start using Docker
-1. [Install Docker](https://docs.docker.com/engine/install/) that includes V2 Compose. This should be standard for any release after April 2022.
+1. [Clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) into a location you want it to run from.
+1. [Install Docker](https://docs.docker.com/engine/install/), ideally a version that includes V2 Compose. This should be standard for any release after April 2022.
 1. Edit the `docker-compose.yaml` file to adjust environment variable values.
 1. Create a `media` directory in the same path as `docker-compose.yaml` and `index.js`. 
 1. `docker compose up` 

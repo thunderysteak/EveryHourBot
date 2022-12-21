@@ -1,9 +1,8 @@
 version: "3.4"
 services:
   ehb:
-    image: repository/every-hour-bot
+    build: .
     environment:
-    - ACCOUNT_NAME=""
     - CONSUMER_KEY=""
     - CONSUMER_SECRET=""
     - ACCESS_TOKEN_KEY=""
@@ -13,4 +12,4 @@ services:
     - MASTODON_SERVER=""
     - MASTODON_ACCESS_TOKEN=""
     volumes:
-    - ./media:./media 
+    - ./media:./ehb/media 

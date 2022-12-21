@@ -11,4 +11,4 @@ RUN chmod 705 /ehb
 RUN npm install
 
 USER daemon
-CMD ["pm2 start -f index.js --name ${ACCOUNT_NAME}"]
+CMD ["node", "index.js"]

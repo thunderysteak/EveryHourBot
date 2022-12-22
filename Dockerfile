@@ -1,5 +1,7 @@
 FROM node:16-alpine
 
+ENV ISDOCKER=true
+
 RUN mkdir /ehb 
 RUN mkdir /ehb/media
 

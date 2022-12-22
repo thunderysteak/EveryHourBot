@@ -6,8 +6,8 @@ RUN mkdir /ehb/media
 WORKDIR /ehb
 COPY . /ehb/
 
-RUN chown daemon /ehb
-RUN chmod 705 /ehb
+RUN chown -R daemon /ehb
+RUN chmod -R 705 /ehb
 RUN npm install
 
 USER daemon

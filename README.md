@@ -5,20 +5,29 @@ A Twitter and Mastodon bot written in NodeJS that powers @PossumEveryHour, using
 Thanks to [IzzyMG](https://github.com/izzymg) for the help fixing up parts of the messy code.
 
 ## Dependencies
-NodeJS 16
-Twitter Developer Account with evelated permissions and access to Twitter V1 API
+NodeJS 16 and up
+For Twitter: Twitter Developer Account with evelated permissions and access to Twitter V1 API
 
-## Quick Start using Docker
-1. [Clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) into a location you want it to run from.
-1. [Install Docker](https://docs.docker.com/engine/install/), ideally a version that includes V2 Compose. This should be standard for any release after April 2022.
-1. Edit the `docker-compose.yaml` file to adjust environment variable values.
-1. Create a `media` directory in the same path as `docker-compose.yaml` and `index.js`. 
-1. `docker compose up` 
-1. You're done! No fiddling with RHEL, no worrying about your environment.
+### MASTODON_SERVER .env variable 
+
+For the `MASTODON_SERVER` variable for Mastodon, you need to pass a full URL including `https://` for the server.
+```
+MASTODON_SERVER="https://fqdn.local"
+```
 
 ## How to use  
-These instructions are for running the bot on a Linux/Windows server system. Code not designed to run on serverless infrastructure like AWS Lambda, Azure Functions or running on Heroku.  
+There are two ways of running the bot. Running it via a daemon process like PM2 (or running the main file manually) or using Docker.
 
+### Using Docker
+1. [Clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) into a location you want it to run from.
+2. [Install Docker](https://docs.docker.com/engine/install/), ideally a version that includes V2 Compose. This should be standard for any release after April 2022.
+3. Edit the `docker-compose.yaml` file to adjust environment variable values. Use `.env-example` as an example file. 
+4. Create a `media` directory in the same path as `docker-compose.yaml` and `index.js`. 
+5. `docker compose up` 
+6. You're done! No fiddling with RHEL, no worrying about your environment.
+
+### Using PM2/Node
+These instructions are for running the bot on a Linux/Windows server system. Code not designed to run on serverless infrastructure like AWS Lambda, Azure Functions or running on Heroku.  
 
 1. [Clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) into a location you want it to run from 
 2. Enter the directory where `index.js` is located and run `npm install` to install the required dependencies

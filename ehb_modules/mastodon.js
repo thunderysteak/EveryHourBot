@@ -14,11 +14,17 @@ process.send('ready')
 //Define imagePath in Global Scope for doMastodon func to be able to grab payload from parent
 let imagePath 
 
+//Make the message receiving an async function so we can ensure we got the payload
+async function getPayload() {
+    return new Promise((resolveFunc) => {
+        process.on('message', (m) => {
+            imagePath = m
+            resolveFunc()
+        })
+    });
+}
+
 const doMastodon = async () => {
-    process.on('message', (m) => {
-        console.log('CHILD got message:', m);
-        imagePath = m
-      });
     console.log("Doing Mastodon");
 
 
@@ -55,7 +61,10 @@ const doMastodon = async () => {
 //The NodeJS process did not exit properly and hung
 //Sounds like a bug, but not seeing it
 //Needs investigation
-doMastodon()
+getPayload()
 .then(() => {
-    exit(0)
+    doMastodon()
+    .then(() => {
+        exit(0)
+    })
 })

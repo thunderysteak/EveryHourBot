@@ -13,12 +13,10 @@ if (process.env.ISDOCKER != "true" ) {
 process.send('ready') 
 //Define imagePath in Global Scope for doMastodon func to be able to grab payload from parent
 let imagePath 
-//Make the message receiving an async function so we can launch stuff after we done
-//The Twitter API can't behave
+//Make the message receiving an async function so we can ensure we got the payload
 async function getPayload() {
     return new Promise((resolveFunc) => {
         process.on('message', (m) => {
-            console.log('CHILD got message:', m);
             imagePath = m
             resolveFunc()
         })

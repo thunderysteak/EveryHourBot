@@ -11,7 +11,7 @@ if (process.env.ISDOCKER != "true" ) {
     }
 
 const rule = new schedule.RecurrenceRule();
-rule.minute = 25;
+rule.minute = 0;
 
 //Needs to be defined in a global scope 
 let filePath

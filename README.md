@@ -1,8 +1,14 @@
 # EveryHourBot
 
-A Twitter and Mastodon bot written in NodeJS that powers @PossumEveryHour, using Twitter 1.1 API and cryptographic functionality for quality randomness.
+A ~~Twitter~~ and Mastodon bot written in NodeJS that powers @PossumEveryHour, using Twitter 1.1 API and cryptographic functionality for quality randomness.
 
 Thanks to [IzzyMG](https://github.com/izzymg) for the help fixing up parts of the messy code.
+
+# NOTICE: Twitter Support Deprecated!
+
+As of 24th of June 2023, Twitter support has been dropped and will no longer be supported due of Twitter management banning harmless bots on a large scale.
+
+Code for the Twitter bot can be located under the v1.1.0-legacytwitter tag. 
 
 ## Dependencies
 NodeJS 16 and up

@@ -25,7 +25,8 @@ console.log('\n'+
 console.log('Welcome to EveryHourBot Bot.\nVersion 2.0.0\n\n'+
 'Module Status:\n'+
 'Use Mastodon: '+process.env.USE_MASTODON +'\n'+
-'Use BlueSky: '+process.env.USE_BLUESKY+'\n'
+'Use BlueSky: '+process.env.USE_BLUESKY+'\n'+
+'Use Twitter:'+process.env.USE_TWITTER+'\n'
 );
 
 const rule = new schedule.RecurrenceRule();
@@ -61,17 +62,11 @@ async function getPayload(){
 
 async function runJob() {
 const filePayload = await getPayload()
-
 if(process.env.USE_MASTODON == "true") {child.fork('./ehb_modules/mastodon.js').send(filePayload)}
-
 if(process.env.USE_BLUESKY == "true") {child.fork('./ehb_modules/bluesky.js').send(filePayload)}
-/* 
-Twitter no longer supported
-console.log('Use Twitter:',process.env.USE_TWITTER == "true")
 if(process.env.USE_TWITTER == "true") {child.fork('./ehb_modules/twitter.js').send(filePayload)}
 } 
-*/
-}
+
 
 if(process.env.DEBUG_MODE !== "true"){
         const job = schedule.scheduleJob(rule, function(){
@@ -84,5 +79,3 @@ if(process.env.DEBUG_MODE == "true"){
         console.log('!!!!!!DEBUG MODE ON --- BYPASSING TIMER AND EXITING AFTER EXECUTION!!!!!!')
         runJob()
 }
-
-

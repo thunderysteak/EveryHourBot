@@ -2,7 +2,7 @@ import defaultExport, * as schedule from 'node-schedule'
 import * as child from 'child_process';
 import * as dotenv from 'dotenv'
 
-console.log('Welcome to EveryHourBot Bot.\nVersion 1.3.0');
+console.log('Welcome to EveryHourBot Bot.\nVersion 2.0.0');
 
 //Are we in Docker?
 //Checks if env variable is present from Dockerfile
@@ -45,9 +45,12 @@ async function runJob() {
 const filePayload = await getPayload()
 console.log('Use Mastodon:',process.env.USE_MASTODON == "true")
 if(process.env.USE_MASTODON == "true") {child.fork('./ehb_modules/mastodon.js').send(filePayload)}
+/* 
+Twitter no longer supported
 console.log('Use Twitter:',process.env.USE_TWITTER == "true")
 if(process.env.USE_TWITTER == "true") {child.fork('./ehb_modules/twitter.js').send(filePayload)}
 } 
+*/
 
 
 const job = schedule.scheduleJob(rule, function(){

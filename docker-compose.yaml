@@ -3,12 +3,7 @@ services:
   ehb:
     build: .
     environment:
-      CONSUMER_KEY: ""
-      CONSUMER_SECRET: ""
-      ACCESS_TOKEN_KEY: ""
-      ACCESS_TOKEN_SECRET: ""
-      USE_TWITTER: true
-      USE_MASTODON: false
+      USE_MASTODON: true
       MASTODON_SERVER: ""
       MASTODON_ACCESS_TOKEN: ""
     volumes:

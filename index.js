@@ -2,13 +2,31 @@ import defaultExport, * as schedule from 'node-schedule'
 import * as child from 'child_process';
 import * as dotenv from 'dotenv'
 
-console.log('Welcome to EveryHourBot Bot.\nVersion 2.0.0');
-
 //Are we in Docker?
 //Checks if env variable is present from Dockerfile
 if (process.env.ISDOCKER != "true" ) {
         dotenv.config()
     }
+
+
+console.log('\n'+
+'\n'+'▓█████::██▒:::█▓▓█████::██▀███::▓██:::██▓:██░:██::▒█████:::█::::██::██▀███:::▄▄▄▄::::▒█████::▄▄▄█████▓'+
+'\n'+'▓█:::▀:▓██░:::█▒▓█:::▀:▓██:▒:██▒:▒██::██▒▓██░:██▒▒██▒::██▒:██::▓██▒▓██:▒:██▒▓█████▄:▒██▒::██▒▓::██▒:▓▒'+
+'\n'+'▒███::::▓██::█▒░▒███:::▓██:░▄█:▒::▒██:██░▒██▀▀██░▒██░::██▒▓██::▒██░▓██:░▄█:▒▒██▒:▄██▒██░::██▒▒:▓██░:▒░'+
+'\n'+'▒▓█::▄:::▒██:█░░▒▓█::▄:▒██▀▀█▄::::░:▐██▓░░▓█:░██:▒██:::██░▓▓█::░██░▒██▀▀█▄::▒██░█▀::▒██:::██░░:▓██▓:░:'+
+'\n'+'░▒████▒:::▒▀█░::░▒████▒░██▓:▒██▒::░:██▒▓░░▓█▒░██▓░:████▓▒░▒▒█████▓:░██▓:▒██▒░▓█::▀█▓░:████▓▒░::▒██▒:░:'+
+'\n'+'░░:▒░:░:::░:▐░::░░:▒░:░░:▒▓:░▒▓░:::██▒▒▒::▒:░░▒░▒░:▒░▒░▒░:░▒▓▒:▒:▒:░:▒▓:░▒▓░░▒▓███▀▒░:▒░▒░▒░:::▒:░░:::'+
+'\n'+':░:░::░:::░:░░:::░:░::░::░▒:░:▒░:▓██:░▒░::▒:░▒░:░::░:▒:▒░:░░▒░:░:░:::░▒:░:▒░▒░▒:::░:::░:▒:▒░:::::░::::'+
+'\n'+':::░::::::::░░:::::░:::::░░:::░::▒:▒:░░:::░::░░:░░:░:░:▒:::░░░:░:░:::░░:::░::░::::░:░:░:░:▒::::░::::::'+
+'\n'+':::░::░::::::░:::::░::░:::░::::::░:░::::::░::░::░::::░:░:::::░::::::::░::::::░::::::::::░:░:::::::::::'+
+'\n'+'::::::::::::░::::::::::::::::::::░:░::::::::::::::::::::::::::::::::::::::::::::::░:::::::::::::::::::'+
+'\n')
+    
+console.log('Welcome to EveryHourBot Bot.\nVersion 2.0.0\n\n'+
+'Module Status:\n'+
+'Use Mastodon: '+process.env.USE_MASTODON +'\n'+
+'Use BlueSky: '+process.env.USE_BLUESKY+'\n'
+);
 
 const rule = new schedule.RecurrenceRule();
 rule.minute = 0;
@@ -43,21 +61,28 @@ async function getPayload(){
 
 async function runJob() {
 const filePayload = await getPayload()
-console.log('Use Mastodon:',process.env.USE_MASTODON == "true")
+
 if(process.env.USE_MASTODON == "true") {child.fork('./ehb_modules/mastodon.js').send(filePayload)}
+
+if(process.env.USE_BLUESKY == "true") {child.fork('./ehb_modules/bluesky.js').send(filePayload)}
 /* 
 Twitter no longer supported
 console.log('Use Twitter:',process.env.USE_TWITTER == "true")
 if(process.env.USE_TWITTER == "true") {child.fork('./ehb_modules/twitter.js').send(filePayload)}
 } 
 */
+}
 
+if(process.env.DEBUG_MODE !== "true"){
+        const job = schedule.scheduleJob(rule, function(){
+                console.log('\nExecuting modules\n');
+                runJob()
+        });
+}
 
-const job = schedule.scheduleJob(rule, function(){
-        console.log('\nExecuting modules\n');
+if(process.env.DEBUG_MODE == "true"){
+        console.log('!!!!!!DEBUG MODE ON --- BYPASSING TIMER AND EXITING AFTER EXECUTION!!!!!!')
         runJob()
-});
-
-
+}
 
 

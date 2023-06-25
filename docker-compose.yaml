@@ -10,6 +10,11 @@ services:
       BLUESKY_SERVER: "https://bsky.social/"
       BLUESKY_EMAIL: ""
       BLUESKY_APP_PASSWORD: ""
+      USE_TWITTER: false
+      TWITTER_CUSTOMER_API_KEY: ""
+      TWITTER_CUSTOMER_API_KEY_SECRET: ""
+      TWITTER_ACCESS_TOKEN: ""
+      TWITTER_ACCESS_TOKEN_SECRET: ""
       DEBUG_MODE: false
     volumes:
     - ./media:/ehb/media 

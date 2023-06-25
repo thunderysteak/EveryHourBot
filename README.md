@@ -1,22 +1,29 @@
 # EveryHourBot
 
-A ~~Twitter~~ and Mastodon bot written in NodeJS that powers @PossumEveryHour, using Twitter 1.1 API and cryptographic functionality for quality randomness.
+A bot written in NodeJS that powers @PossumEveryHour, supporting various social media platforms and cryptographic functionality for quality randomness.
 
-Thanks to [IzzyMG](https://github.com/izzymg) for the help fixing up parts of the messy code.
+Supported Platforms
+- Twitter
+- Mastodon
+- BlueSky
 
-# NOTICE: Twitter Support Deprecated!
+More platforms planned!
 
-As of 24th of June 2023, Twitter support has been dropped and will no longer be supported due of Twitter management banning harmless bots on a large scale.
+# NOTICE: Breaking changes for Twitter!
 
-Code for the Twitter bot can be located under the v1.1.0-legacytwitter tag. 
+With v2.0.0 of the bot, the whole codebase was heavily refactored, and the Twitter part has been replaced to utilise V2 API that is compatible with the Twitter Developer Free Tier. You will now need an Access Token that has Read and Write permissions.
+
+You NEED to generate and set up OAuth 2.0 Client ID and Client Secret to grand Read and Write permission to your Access Token. If you don't set this up, you will either receive 403 or 401 HTTP error codes.
+
+Code for the V1 API Twitter bot can be located under the v1.1.0-legacytwitter tag. 
 
 ## Dependencies
 NodeJS 16 and up
-For Twitter: Twitter Developer Account with evelated permissions and access to Twitter V1 API
+For Twitter: Twitter Developer Account with V2 API access & Access Token with Read and Write permissions
 
-### MASTODON_SERVER .env variable 
+### MASTODON_SERVER & BLUESKY_SERVER .env variable 
 
-For the `MASTODON_SERVER` variable for Mastodon, you need to pass a full URL including `https://` for the server.
+For the `MASTODON_SERVER` variable for Mastodon and `BLUESKY_SERVER` variable for BlueSky/AT Protocol, you need to pass a full URL including `https://` for the server.
 ```
 MASTODON_SERVER="https://fqdn.local"
 ```
@@ -37,8 +44,8 @@ These instructions are for running the bot on a Linux/Windows server system. Cod
 
 1. [Clone the repository](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository) into a location you want it to run from 
 2. Enter the directory where `index.js` is located and run `npm install` to install the required dependencies
-3. Populate the `media` folder with pictures of your choosing that follow the [Twitter API Media Best Practices](https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/uploading-media/media-best-practices).
-4. [Apply for a Twitter developer account and obtain the v1 API and Access tokens from the account you want to run the bot from](https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api)  
+3. Populate the `media` folder with pictures of your choosing. BlueSky has a limitation of formats and only supports JPEG and PNG.
+4. Obtain the required API keys that are listed in `.env`.
 5. Create a new `.env` file and add the required API keys. Use `.env-example` as an example file.  
 6. Use a NodeJS daemon process like PM2 to start the bot. As an example, cd to the directory and run `pm2 start -f index.js --name "PossumEveryHour"`
 
@@ -62,12 +69,13 @@ v16.13.1
 
 ## How does it work?  
 
-1. If executed from `index.js`, it will utilize [Node Schedule](https://www.npmjs.com/package/node-schedule), to execute `maincore.js` every hour, simulating cron job scheduling  
-3. Code loads all the files in the `media` folder into an array  
-2. Code verifies how many media files are in the `media` folder, and if it detects 2 or less images, it will refuse to run to prevent the code to be used for spamming  
-3. `createPost()` function calls `getRandomFile()` that looks up how many entries are in the `usednumbers.txt` file depending on the count of files in `media` folder and if the file needs to be cleaned up.
-4. `genRandomNumber()` function gets called, generating a number between 1 to count of files in `media` and checks against `usednumbers.txt` to see if that specific number was used in a specific timeframe. If it was used, repeat until a number that wasn't used is found.
-5. Write the used number into `usednumbers.txt`
-
+1. `index.js` acts as the main/parent process that regulates the time and spawns child processes from the `ehb_modules`
+2. Parent spawns the module `generate_file.js` in a new child process. Its always ran first. This module processes the randomisation and returns a file path back to the parent
+3. `index.js` receives the file path back from the child and then spawns other modules for each social media platform with the file path
+4. Modules perform their job, their process exists and `index.js` waits for next run
 
 Tested with Rocky Linux 8.5, npm 8.1.2 and nodejs v16.13.1
+
+# Thanks to these people that helped with the development
+
+- Thanks to [IzzyMG](https://github.com/izzymg) for the help fixing up parts of the messy code in the V1.X releases.

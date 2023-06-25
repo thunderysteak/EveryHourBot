@@ -18,7 +18,7 @@ You NEED to generate and set up OAuth 2.0 Client ID and Client Secret to grand R
 Code for the V1 API Twitter bot can be located under the v1.1.0-legacytwitter tag. 
 
 ## Dependencies
-NodeJS 16 and up
+NodeJS 18 and up
 For Twitter: Twitter Developer Account with V2 API access & Access Token with Read and Write permissions
 
 ### MASTODON_SERVER & BLUESKY_SERVER .env variable 
@@ -52,19 +52,19 @@ These instructions are for running the bot on a Linux/Windows server system. Cod
 If you are confused on where to start or you have no experience with Linux or servers in general, I'd suggest using something like a [Raspberry Pi](https://www.youtube.com/watch?v=BpJCAafw2qE), or [using an old computer to install Ubuntu Linux onto](https://www.youtube.com/watch?v=D4WyNjt_hbQ) and run your own bot from that. 
 
 ### Rocky Linux/RHEL8 requirements
-Rocky/RHEL8 ships with NodeJS 10 by default. Execute these commands to disable the NodeJS 10 DNF module, enable NodeJS 16 module and install NodeJS 16:  
+Rocky/RHEL8 ships with NodeJS 10 by default. Execute these commands to disable the NodeJS 10 DNF module, enable NodeJS 18 module and install NodeJS 18:  
 
 ```
 sudo dnf module disable nodejs:10 -y
-sudo dnf module enable nodejs:16 -y
-sudo dnf install @nodejs:16
+sudo dnf module enable nodejs:18 -y
+sudo dnf install @nodejs:18
 ```
 
 Then verify:
 
 ```
 $ node -v
-v16.13.1
+v18.14.2
 ```
 
 ## How does it work?  
@@ -74,7 +74,7 @@ v16.13.1
 3. `index.js` receives the file path back from the child and then spawns other modules for each social media platform with the file path
 4. Modules perform their job, their process exists and `index.js` waits for next run
 
-Tested with Rocky Linux 8.5, npm 8.1.2 and nodejs v16.13.1
+Tested with Rocky Linux 8.5, npm 8.1.2 and nodejs v18.14.2
 
 # Thanks to these people that helped with the development
 

@@ -42,7 +42,6 @@ const doMastodon = async () => {
         visibility: 'public',
         mediaIds: [attachment.id],
     });
-    console.log("\n\n\Toot has been successfully sent.\n\n\n");
     //FIXME
     //Need to limit this to not run infinite times and cause issues
     //Uploads to larger instance seem to time out around 3 to 5 times before a successful upload
@@ -65,6 +64,7 @@ getPayload()
 .then(() => {
     doMastodon()
     .then(() => {
+        console.log("\nToot Published");
         exit(0)
     })
 })

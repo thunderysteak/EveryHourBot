@@ -64,7 +64,7 @@ getPayload()
 .then(() => {
     doTwitter()
     .then(() => {
-        console.log("Tweet Published")
+        console.log("\nTweet Published");
         exit(0)
     })
 })

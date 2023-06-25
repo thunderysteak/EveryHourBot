@@ -77,6 +77,7 @@ getPayload()
 .then(() => {
     doBlueSky()
     .then(() => {
+        console.log("\nBluesky Post Published");
         exit(0)
     })
 })

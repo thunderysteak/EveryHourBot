@@ -12,7 +12,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "node-schedule": "^2.0.0",
-    "masto": "^4.10.2",
+    "masto": "^5.11.3",
     "read-last-lines": "^1.8.0",
     "@atproto/api": "^0.3.13",
     "file-type": "^18.5.0",
